@@ -1,0 +1,45 @@
+@layer components {
+  .hero-section {
+    @apply relative pt-16 pb-20 sm:pt-24 sm:pb-28;
+  }
+
+  .hero-availability-dot {
+    @apply bg-accent size-1.5 rounded-full;
+  }
+
+  .hero-title {
+    @apply text-hero text-ink mt-8 max-w-[18ch];
+  }
+
+  .hero-grid {
+    @apply mt-12 grid gap-10 lg:grid-cols-[1.6fr_1fr] lg:items-end;
+  }
+
+  .hero-intro {
+    @apply max-w-xl text-[1.125rem];
+  }
+
+  .hero-actions {
+    @apply mt-8;
+  }
+
+  .hero-portrait {
+    @apply border-border mb-6 aspect-square w-full max-w-[16rem] rounded-[var(--radius-lg)] border object-cover;
+  }
+
+  .hero-facts {
+    @apply border-border divide-border divide-y border-y;
+  }
+
+  .hero-fact {
+    @apply flex items-baseline justify-between gap-4 py-4;
+  }
+
+  .hero-fact-label {
+    @apply text-muted-foreground font-mono text-[0.6875rem] tracking-[0.14em] uppercase;
+  }
+
+  .hero-fact-value {
+    @apply font-serif text-[1.05rem] tracking-[-0.01em];
+  }
+}

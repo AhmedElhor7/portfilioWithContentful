@@ -2,9 +2,11 @@ import type { Metadata, Viewport } from "next";
 import { Fraunces, Inter, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 import { MotionProvider } from "@/components/motion/motion-provider";
-import { SiteHeader } from "@/components/layout/site-header";
-import { SiteFooter } from "@/components/layout/site-footer";
+import { SiteHeader } from "@/components/layout/site-header/site-header";
+import { SiteFooter } from "@/components/layout/site-footer/site-footer";
 import { themeScript } from "@/components/layout/theme-script";
+import { getSiteSettings, resolveSiteDescription } from "@/lib/contentful/portfolio";
+import { getSiteUrl } from "@/lib/site-url";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -25,32 +27,61 @@ const jetbrainsMono = JetBrains_Mono({
   display: "swap",
 });
 
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
+export async function generateMetadata(): Promise<Metadata> {
+  const settings = await getSiteSettings();
 
-export const metadata: Metadata = {
-  metadataBase: new URL(SITE_URL),
-  title: {
-    default: "Ada Whitfield — Designer & Engineer",
-    template: "%s — Ada Whitfield",
-  },
-  description:
-    "Portfolio of Ada Whitfield, a designer-engineer building calm, considered interfaces for the web. Selected work and writing on typography, motion, and design systems.",
-  keywords: ["portfolio", "design engineer", "typography", "design systems", "next.js"],
-  authors: [{ name: "Ada Whitfield" }],
-  openGraph: {
-    type: "website",
-    url: SITE_URL,
-    title: "Ada Whitfield — Designer & Engineer",
-    description:
-      "A designer-engineer building calm, considered interfaces for the web.",
-    siteName: "Ada Whitfield",
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: "Ada Whitfield — Designer & Engineer",
-    description: "A designer-engineer building calm, considered interfaces for the web.",
-  },
-};
+  const siteUrl = getSiteUrl();
+  const siteName = settings?.siteName || "Portfolio";
+  const professionalTitle = settings?.professionalTitle ?? "";
+  const title = professionalTitle ? `${siteName} — ${professionalTitle}` : siteName;
+  const description = resolveSiteDescription(settings);
+  const ogImage = settings?.ogImage;
+
+  return {
+    ...(siteUrl ? { metadataBase: siteUrl } : {}),
+    title: {
+      default: title,
+      template: `%s — ${siteName}`,
+    },
+    ...(description ? { description } : {}),
+    keywords: [
+      "portfolio",
+      professionalTitle || "front-end developer",
+      "react",
+      "next.js",
+      "angular",
+      "typescript",
+      "contentful",
+    ],
+    authors: [{ name: siteName }],
+    ...(siteUrl ? { alternates: { canonical: "/" } } : {}),
+    openGraph: {
+      type: "website",
+      ...(siteUrl ? { url: siteUrl.toString() } : {}),
+      title,
+      ...(description ? { description } : {}),
+      siteName,
+      ...(ogImage
+        ? {
+            images: [
+              {
+                url: ogImage.url,
+                width: ogImage.width,
+                height: ogImage.height,
+                alt: ogImage.alt,
+              },
+            ],
+          }
+        : {}),
+    },
+    twitter: {
+      card: ogImage ? "summary_large_image" : "summary",
+      title,
+      ...(description ? { description } : {}),
+      ...(ogImage ? { images: [ogImage.url] } : {}),
+    },
+  };
+}
 
 export const viewport: Viewport = {
   themeColor: [
@@ -59,7 +90,14 @@ export const viewport: Viewport = {
   ],
 };
 
-export default function RootLayout({ children }: LayoutProps<"/">) {
+export default async function RootLayout({ children }: LayoutProps<"/">) {
+  const settings = await getSiteSettings();
+
+  const siteName = settings?.siteName || "";
+  const contactEmail = settings?.contactEmail || "";
+  const gitHubUrl = settings?.gitHubUrl ?? null;
+  const linkedInUrl = settings?.linkedInUrl ?? null;
+
   return (
     <html
       lang="en"
@@ -69,7 +107,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       <head>
         <script dangerouslySetInnerHTML={{ __html: themeScript }} />
       </head>
-      <body className="grain flex min-h-dvh flex-col">
+      <body className="grain flex min-h-dvh flex-col" suppressHydrationWarning>
         <MotionProvider>
           <a
             href="#main"
@@ -77,11 +115,16 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
           >
             Skip to content
           </a>
-          <SiteHeader />
+          <SiteHeader siteName={siteName} />
           <main id="main" className="flex-1">
             {children}
           </main>
-          <SiteFooter />
+          <SiteFooter
+            siteName={siteName}
+            contactEmail={contactEmail}
+            gitHubUrl={gitHubUrl}
+            linkedInUrl={linkedInUrl}
+          />
         </MotionProvider>
       </body>
     </html>

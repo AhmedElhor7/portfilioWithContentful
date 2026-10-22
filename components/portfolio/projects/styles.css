@@ -1,0 +1,108 @@
+@layer components {
+  .projects-grid {
+    @apply mt-14 grid grid-cols-1 gap-6 sm:gap-7 lg:grid-cols-3;
+  }
+
+  .projects-grid > li {
+    @apply flex;
+  }
+
+  .project-card {
+    @apply border-border bg-card relative flex h-full w-full flex-col overflow-hidden rounded-[var(--radius-lg)] border;
+    transition:
+      transform 0.5s var(--ease-out-expo),
+      box-shadow 0.5s var(--ease-out-expo),
+      border-color 0.5s var(--ease-out-expo);
+  }
+
+  .project-card-media {
+    @apply bg-muted relative aspect-[16/10] overflow-hidden;
+  }
+
+  .project-card-image {
+    @apply h-full w-full object-cover saturate-[0.85];
+    transition: filter 0.7s var(--ease-out-expo);
+  }
+
+  .project-card-media-fallback {
+    @apply bg-muted from-accent/10 to-muted grid h-full w-full place-items-center bg-gradient-to-br;
+  }
+
+  .project-card-initial {
+    @apply text-accent/50 font-serif text-4xl italic;
+  }
+
+  .project-card-featured {
+    @apply absolute top-4 left-4 z-10;
+  }
+
+  .project-card-fade {
+    @apply from-card/85 pointer-events-none absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t to-transparent;
+  }
+
+  .project-card-body {
+    @apply flex flex-1 flex-col p-6 sm:p-7;
+  }
+
+  .project-card-title {
+    @apply text-title text-ink text-[1.6rem] tracking-[-0.028em];
+  }
+
+  .project-card-description {
+    @apply text-ink-soft mt-3 line-clamp-3 text-[0.975rem] leading-relaxed;
+  }
+
+  .project-card-techs {
+    @apply mt-5 flex flex-wrap gap-1.5;
+  }
+
+  .project-card-footer {
+    @apply border-border text-muted-foreground mt-auto flex flex-wrap items-center gap-5 border-t pt-5;
+  }
+
+  .project-card-link {
+    @apply text-ink-soft inline-flex items-center gap-1 font-mono text-[0.6875rem] tracking-[0.12em] uppercase;
+    transition: color 0.3s var(--ease-out-expo);
+  }
+
+  .project-card-link-icon {
+    @apply size-3.5;
+    transition: transform 0.5s var(--ease-out-expo);
+  }
+
+  @media (hover: hover) {
+    .project-card:hover {
+      transform: translateY(-0.25rem);
+      border-color: var(--border-strong);
+      box-shadow: var(--shadow-lift-lg);
+    }
+
+    .project-card:hover .project-card-image {
+      filter: saturate(1);
+    }
+
+    .project-card-link:hover {
+      color: var(--accent);
+    }
+
+    .project-card-link:hover .project-card-link-icon {
+      transform: translate(2px, -2px);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .project-card,
+    .project-card-image,
+    .project-card-link-icon {
+      transition: none;
+    }
+
+    .project-card:hover {
+      transform: none;
+    }
+
+    .project-card-link:hover .project-card-link-icon {
+      transform: none;
+    }
+  }
+}

@@ -1,4 +1,5 @@
-import { Button as ButtonPrimitive } from "@base-ui/react/button";
+import Link from "next/link";
+import type { ReactNode } from "react";
 import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@/lib/utils";
 
@@ -16,10 +17,10 @@ const buttonVariants = cva(
   {
     variants: {
       variant: {
-        solid:
-          "bg-ink text-paper hover:bg-accent hover:text-accent-foreground dark:bg-paper dark:text-ink dark:hover:bg-accent dark:hover:text-accent-foreground",
-        outline:
-          "border-border-strong text-ink hover:border-ink hover:bg-ink hover:text-paper dark:border-border-strong dark:text-paper dark:hover:border-paper dark:hover:bg-paper dark:hover:text-ink",
+        // `ink` and `paper` invert with the theme, so these need no `dark:` overrides:
+        // dark text on light paper in light mode, light text on dark paper in dark mode.
+        solid: "bg-ink text-paper hover:bg-accent hover:text-accent-foreground",
+        outline: "border-border-strong text-ink hover:border-ink hover:bg-ink hover:text-paper",
         ghost: "text-ink-soft hover:text-ink hover:bg-muted",
         accent: "bg-accent text-accent-foreground hover:brightness-110",
         underline:
@@ -41,20 +42,51 @@ const buttonVariants = cva(
   },
 );
 
-type ButtonProps = ButtonPrimitive.Props &
-  VariantProps<typeof buttonVariants> & {
-    className?: string;
-  };
+export type ButtonLinkProps = VariantProps<typeof buttonVariants> & {
+  /** Destination; same-origin paths and hashes use the Next.js router. */
+  href: string;
+  children: ReactNode;
+  className?: string;
+  /** Absolute http(s) destination that should open in a new tab. */
+  external?: boolean;
+  "aria-label"?: string;
+};
 
-function Button({ className, variant, size, ...props }: ButtonProps) {
+/**
+ * @description Navigation call to action styled as a button. Renders a Next.js
+ * link for in-page routes and a plain anchor for mail and external URLs, so the
+ * result always keeps native link semantics.
+ * @param props Destination, variant, size and link attributes.
+ * @returns The styled anchor or Next.js link.
+ */
+export function ButtonLink({
+  href,
+  children,
+  className,
+  variant,
+  size,
+  external = false,
+  ...props
+}: ButtonLinkProps) {
+  const classes = cn(buttonVariants({ variant, size }), className);
+  const routed = href.startsWith("/") || href.startsWith("#");
+
+  if (routed) {
+    return (
+      <Link href={href} className={classes} {...props}>
+        {children}
+      </Link>
+    );
+  }
+
   return (
-    <ButtonPrimitive
-      data-slot="button"
-      className={cn(buttonVariants({ variant, size }), className)}
+    <a
+      href={href}
+      className={classes}
+      {...(external ? { target: "_blank", rel: "noreferrer noopener" } : {})}
       {...props}
-    />
+    >
+      {children}
+    </a>
   );
 }
-
-export { Button, buttonVariants };
-export type { ButtonProps };

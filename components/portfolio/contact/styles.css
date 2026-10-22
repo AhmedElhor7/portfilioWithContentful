@@ -1,0 +1,21 @@
+@layer components {
+  .contact-section {
+    @apply border-border bg-card scroll-mt-24 border-t;
+  }
+
+  .contact-inner {
+    @apply py-24 sm:py-32;
+  }
+
+  .contact-heading {
+    @apply text-display text-ink mt-6 max-w-[18ch];
+  }
+
+  .contact-message {
+    @apply mt-6 max-w-lg;
+  }
+
+  .contact-actions {
+    @apply mt-10;
+  }
+}

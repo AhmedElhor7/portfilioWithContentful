@@ -1,6 +1,12 @@
 import * as React from "react";
 import { cn } from "@/lib/utils";
 
+/**
+ * @description Thin horizontal or vertical rule. Decorative by default so it is
+ * ignored by assistive technology.
+ * @param props Orientation, decorative flag, classes and div attributes.
+ * @returns The separator element.
+ */
 function Separator({
   className,
   orientation = "horizontal",

@@ -9,7 +9,8 @@ const badgeVariants = cva(
       variant: {
         default: "border-border-strong text-ink-soft",
         accent: "border-accent/30 bg-accent-soft text-accent",
-        solid: "border-transparent bg-ink text-paper dark:bg-paper dark:text-ink",
+        // `ink`/`paper` invert with the theme; no `dark:` overrides are needed.
+        solid: "border-transparent bg-ink text-paper",
         outline: "border-border text-muted-foreground",
       },
       size: {
@@ -21,6 +22,11 @@ const badgeVariants = cva(
   },
 );
 
+/**
+ * @description Small label used for technologies and the featured marker.
+ * @param props Variant, size, classes and span attributes.
+ * @returns The badge element.
+ */
 function Badge({
   className,
   variant,
@@ -32,4 +38,4 @@ function Badge({
   );
 }
 
-export { Badge, badgeVariants };
+export { Badge };

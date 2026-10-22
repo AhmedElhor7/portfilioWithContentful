@@ -1,0 +1,36 @@
+/**
+ * Semantic helpers for class combinations that repeat across more than one
+ * section. Keep this file small: one-off styling belongs in the component's
+ * own `styles.css`.
+ */
+@layer components {
+  /* Vertical rhythm between homepage sections. */
+  .section-spacing {
+    @apply pb-20 sm:pb-28;
+  }
+
+  /* Used when a section has no preceding section to provide the top gap. */
+  .section-spacing-top {
+    @apply pt-20 sm:pt-28;
+  }
+
+  /* Supporting copy under a heading. */
+  .section-lede {
+    @apply text-ink-soft text-[1.0625rem] leading-relaxed text-pretty;
+  }
+
+  /* Eyebrow row: index, rule and label. */
+  .section-eyebrow {
+    @apply flex items-center gap-3;
+  }
+
+  /* Thin rule that separates the section index from its label. */
+  .eyebrow-rule {
+    @apply bg-border-strong h-px w-6;
+  }
+
+  /* Rows of primary/secondary actions. */
+  .action-row {
+    @apply flex flex-wrap items-center gap-3;
+  }
+}

@@ -1,0 +1,25 @@
+@layer components {
+  .section-heading {
+    @apply border-border flex flex-col gap-6 border-t pt-8;
+  }
+
+  .section-heading[data-align="between"] {
+    @apply lg:flex-row lg:items-end lg:justify-between lg:gap-16;
+  }
+
+  .section-heading-body {
+    @apply max-w-2xl;
+  }
+
+  .section-heading[data-align="between"] .section-heading-body {
+    @apply lg:max-w-3xl;
+  }
+
+  .section-heading-title {
+    @apply text-display text-ink mt-5;
+  }
+
+  .section-heading-description {
+    @apply mt-5 max-w-xl;
+  }
+}

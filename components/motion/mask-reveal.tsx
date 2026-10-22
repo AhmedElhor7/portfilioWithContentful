@@ -1,8 +1,9 @@
 "use client";
 
 import * as React from "react";
-import { motion } from "motion/react";
+import { motion, useAnimationControls, useReducedMotion } from "motion/react";
 import { cn } from "@/lib/utils";
+import { MOTION_EASE_OUT_EXPO } from "./defines";
 
 type MaskRevealProps = {
   text: string;
@@ -11,13 +12,22 @@ type MaskRevealProps = {
   delay?: number;
   stagger?: number;
   duration?: number;
-  /** Renders each word as a block so multi-line headings mask correctly. */
-  animateOnMount?: boolean;
 };
 
 /**
- * Splits a string into words and reveals each one from behind an overflow mask.
- * Intended for display headings — pass plain text only.
+ * Runs before the browser paints on the client, and is skipped during SSR so the
+ * server markup never renders clipped text.
+ */
+const useIsomorphicLayoutEffect =
+  typeof window === "undefined" ? React.useEffect : React.useLayoutEffect;
+
+/**
+ * @description Splits a string into words and reveals each one from behind an
+ * overflow mask. Intended for display headings, so pass plain text only. The
+ * server markup stays readable; the hidden state is only applied on the client
+ * right before the animation starts.
+ * @param props Text, styling hooks and timing overrides.
+ * @returns The masked heading content.
  */
 export function MaskReveal({
   text,
@@ -26,8 +36,9 @@ export function MaskReveal({
   delay = 0,
   stagger = 0.055,
   duration = 0.85,
-  animateOnMount = false,
 }: MaskRevealProps) {
+  const reducedMotion = useReducedMotion();
+  const controls = useAnimationControls();
   const words = React.useMemo(() => text.split(/\s+/).filter(Boolean), [text]);
 
   const container = {
@@ -41,18 +52,23 @@ export function MaskReveal({
     hidden: { y: "115%" },
     visible: {
       y: "0%",
-      transition: { duration, ease: [0.16, 1, 0.3, 1] as const },
+      transition: { duration, ease: MOTION_EASE_OUT_EXPO },
     },
   };
+
+  useIsomorphicLayoutEffect(() => {
+    if (reducedMotion) return;
+
+    controls.set("hidden");
+    void controls.start("visible");
+  }, [controls, reducedMotion]);
 
   return (
     <motion.span
       className={cn("inline", className)}
       variants={container}
-      initial="hidden"
-      {...(animateOnMount
-        ? { animate: "visible" }
-        : { whileInView: "visible", viewport: { once: true, margin: "0px 0px -10% 0px" } })}
+      initial={false}
+      animate={controls}
     >
       {words.map((value, index) => (
         <span
@@ -62,7 +78,7 @@ export function MaskReveal({
           <motion.span variants={word} className="inline-block will-change-transform">
             {value}
           </motion.span>
-          {index < words.length - 1 ? <span className="inline-block">&nbsp;</span> : null}
+          {index < words.length - 1 ? " " : null}
         </span>
       ))}
     </motion.span>

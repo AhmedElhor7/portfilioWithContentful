@@ -47,6 +47,13 @@ function buildUrl({
   return query ? `${base}?${query}` : base;
 }
 
+/**
+ * @description Renders a Contentful asset with a responsive `srcset`, modern
+ * formats and explicit dimensions to avoid layout shift. Non-Contentful sources
+ * are passed through unchanged.
+ * @param props Image source, dimensions and Contentful Image API options.
+ * @returns The image element.
+ */
 function ContentfulImage({
   src,
   width,
@@ -56,14 +63,20 @@ function ContentfulImage({
   format = "avif",
   fit = "fill",
   focalPoint,
-  alt,
+  alt = "",
   className,
   loading = "lazy",
+  sizes,
   ...props
 }: ContentfulImageProps) {
   const responsiveWidths = [480, 768, 1080, 1400, 1920];
   const srcSet = isContentfulAsset(src)
-    ? responsiveWidths.map((w) => `${buildUrl({ src, renderedWidth: w, quality, format, fit, focalPoint })} ${w}w`).join(", ")
+    ? responsiveWidths
+        .map(
+          (w) =>
+            `${buildUrl({ src, renderedWidth: w, quality, format, fit, focalPoint })} ${w}w`,
+        )
+        .join(", ")
     : undefined;
 
   return (
@@ -71,10 +84,10 @@ function ContentfulImage({
     <img
       src={buildUrl({ src, renderedWidth: renderedWidth ?? width, quality, format, fit, focalPoint })}
       srcSet={srcSet}
-      sizes={props.sizes ?? (srcSet ? "100vw" : undefined)}
+      sizes={sizes ?? (srcSet ? "100vw" : undefined)}
       width={width}
       height={height}
-      alt={alt ?? ""}
+      alt={alt}
       loading={loading}
       decoding="async"
       className={cn("block", className)}
@@ -83,4 +96,4 @@ function ContentfulImage({
   );
 }
 
-export { ContentfulImage, buildUrl as buildContentfulImageUrl };
+export { ContentfulImage };
