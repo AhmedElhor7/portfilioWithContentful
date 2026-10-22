@@ -67,7 +67,10 @@ function readOrder(value: unknown): number | null {
  */
 export const getSiteSettings = cache(async (): Promise<SiteSettings | null> => {
   const client = getClient();
-  if (!client) return null;
+  if (!client) {
+    console.error("[contentful] getSiteSettings: no client (missing credentials)");
+    return null;
+  }
 
   try {
     const response = await client.getEntries<SiteSettingsSkeleton>({
@@ -78,7 +81,10 @@ export const getSiteSettings = cache(async (): Promise<SiteSettings | null> => {
 
     const entry = response.items[0];
 
-    if (!entry) return null;
+    if (!entry) {
+      console.error("[contentful] getSiteSettings: no entries found for content_type", SITE_SETTINGS_CONTENT_TYPE);
+      return null;
+    }
 
     const fields = readFields(entry);
 
@@ -97,7 +103,8 @@ export const getSiteSettings = cache(async (): Promise<SiteSettings | null> => {
       profileImage: normalizeImage(fields.profileImage),
       ogImage: normalizeImage(fields.ogImage),
     };
-  } catch {
+  } catch (error) {
+    console.error("[contentful] getSiteSettings failed:", (error as Error)?.message);
     return null;
   }
 });
@@ -108,7 +115,10 @@ export const getSiteSettings = cache(async (): Promise<SiteSettings | null> => {
  */
 export const getHeroSection = cache(async (): Promise<HeroSection | null> => {
   const client = getClient();
-  if (!client) return null;
+  if (!client) {
+    console.error("[contentful] getHeroSection: no client (missing credentials)");
+    return null;
+  }
 
   try {
     const response = await client.getEntries<HeroSectionSkeleton>({
@@ -119,7 +129,10 @@ export const getHeroSection = cache(async (): Promise<HeroSection | null> => {
 
     const entry = response.items[0];
 
-    if (!entry) return null;
+    if (!entry) {
+      console.error("[contentful] getHeroSection: no entries found for content_type", HERO_SECTION_CONTENT_TYPE);
+      return null;
+    }
 
     const fields = readFields(entry);
 
@@ -133,7 +146,8 @@ export const getHeroSection = cache(async (): Promise<HeroSection | null> => {
       secondaryButtonLabel: readText(fields.secondaryButtonLabel),
       secondaryButtonUrl: asLinkTarget(fields.secondaryButtonUrl),
     };
-  } catch {
+  } catch (error) {
+    console.error("[contentful] getHeroSection failed:", (error as Error)?.message);
     return null;
   }
 });
@@ -144,7 +158,10 @@ export const getHeroSection = cache(async (): Promise<HeroSection | null> => {
  */
 export const getAboutSection = cache(async (): Promise<AboutSection | null> => {
   const client = getClient();
-  if (!client) return null;
+  if (!client) {
+    console.error("[contentful] getAboutSection: no client (missing credentials)");
+    return null;
+  }
 
   try {
     const response = await client.getEntries<AboutSectionSkeleton>({
@@ -155,7 +172,10 @@ export const getAboutSection = cache(async (): Promise<AboutSection | null> => {
 
     const entry = response.items[0];
 
-    if (!entry) return null;
+    if (!entry) {
+      console.error("[contentful] getAboutSection: no entries found for content_type", ABOUT_SECTION_CONTENT_TYPE);
+      return null;
+    }
 
     const fields = readFields(entry);
 
@@ -165,7 +185,8 @@ export const getAboutSection = cache(async (): Promise<AboutSection | null> => {
       heading: readText(fields.aboutHeading),
       description: readText(fields.aboutDescription),
     };
-  } catch {
+  } catch (error) {
+    console.error("[contentful] getAboutSection failed:", (error as Error)?.message);
     return null;
   }
 });
@@ -176,7 +197,10 @@ export const getAboutSection = cache(async (): Promise<AboutSection | null> => {
  */
 export const getContactSection = cache(async (): Promise<ContactSection | null> => {
   const client = getClient();
-  if (!client) return null;
+  if (!client) {
+    console.error("[contentful] getContactSection: no client (missing credentials)");
+    return null;
+  }
 
   try {
     const response = await client.getEntries<ContactSectionSkeleton>({
@@ -187,7 +211,10 @@ export const getContactSection = cache(async (): Promise<ContactSection | null> 
 
     const entry = response.items[0];
 
-    if (!entry) return null;
+    if (!entry) {
+      console.error("[contentful] getContactSection: no entries found for content_type", CONTACT_SECTION_CONTENT_TYPE);
+      return null;
+    }
 
     const fields = readFields(entry);
 
@@ -197,7 +224,8 @@ export const getContactSection = cache(async (): Promise<ContactSection | null> 
       heading: readText(fields.contactHeading),
       message: readText(fields.contactMessage),
     };
-  } catch {
+  } catch (error) {
+    console.error("[contentful] getContactSection failed:", (error as Error)?.message);
     return null;
   }
 });
@@ -208,7 +236,10 @@ export const getContactSection = cache(async (): Promise<ContactSection | null> 
  */
 export const getProjects = cache(async (): Promise<Project[]> => {
   const client = getClient();
-  if (!client) return [];
+  if (!client) {
+    console.error("[contentful] getProjects: no client (missing credentials)");
+    return [];
+  }
 
   try {
     const response = await client.getEntries<ProjectSkeleton>({
@@ -217,6 +248,10 @@ export const getProjects = cache(async (): Promise<Project[]> => {
       limit: 100,
       order: ["fields.displayOrder"],
     });
+
+    if (!response.items || response.items.length === 0) {
+      console.error("[contentful] getProjects: no entries found for content_type", PROJECT_CONTENT_TYPE);
+    }
 
     const projects = response.items.map((item): Project => {
       const fields = readFields(item);
@@ -242,7 +277,8 @@ export const getProjects = cache(async (): Promise<Project[]> => {
       if (aOrder !== bOrder) return aOrder - bOrder;
       return a.name.localeCompare(b.name);
     });
-  } catch {
+  } catch (error) {
+    console.error("[contentful] getProjects failed:", (error as Error)?.message);
     return [];
   }
 });

@@ -76,10 +76,18 @@ let cachedClient: ContentfulClientApi<undefined> | null | undefined;
 function getCredentials() {
   const space = process.env.CONTENTFUL_SPACE_ID;
   const accessToken = process.env.CONTENTFUL_ACCESS_TOKEN;
+  const environment = process.env.CONTENTFUL_ENVIRONMENT ?? "master";
 
-  if (!space || !accessToken) return null;
+  if (!space || !accessToken) {
+    if (process.env.NODE_ENV !== "production" || process.env.CI || typeof window === "undefined") {
+      console.error(
+        "[contentful] Missing credentials. Required: CONTENTFUL_SPACE_ID and CONTENTFUL_ACCESS_TOKEN. Set them in your environment (e.g., .env.local for local dev or build-time env vars in CI/Vercel).",
+      );
+    }
+    return null;
+  }
 
-  return { space, accessToken };
+  return { space, accessToken, environment };
 }
 
 /**
@@ -98,11 +106,17 @@ export function getClient(): ContentfulClientApi<undefined> | null {
     return cachedClient;
   }
 
-  cachedClient = createClient({
-    space: credentials.space,
-    accessToken: credentials.accessToken,
-    environment: process.env.CONTENTFUL_ENVIRONMENT ?? "master",
-  });
+  try {
+    cachedClient = createClient({
+      space: credentials.space,
+      accessToken: credentials.accessToken,
+      environment: credentials.environment,
+    });
+  } catch (error) {
+    console.error("[contentful] Failed to create client", (error as Error)?.message);
+    cachedClient = null;
+    return cachedClient;
+  }
 
   return cachedClient;
 }
