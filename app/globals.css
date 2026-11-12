@@ -9,6 +9,7 @@
 @import "../components/portfolio/projects/styles.css";
 @import "../components/portfolio/toolkit/styles.css";
 @import "../components/portfolio/contact/styles.css";
+@import "../components/chatbot/styles.css";
 
 @custom-variant dark (&:is(.dark *));
 

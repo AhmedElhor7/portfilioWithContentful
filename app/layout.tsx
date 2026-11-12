@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Fraunces, Inter, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
+import { Chatbot } from "@/components/chatbot/chatbot";
 import { MotionProvider } from "@/components/motion/motion-provider";
 import { SiteHeader } from "@/components/layout/site-header/site-header";
 import { SiteFooter } from "@/components/layout/site-footer/site-footer";
@@ -125,6 +126,7 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
             gitHubUrl={gitHubUrl}
             linkedInUrl={linkedInUrl}
           />
+          <Chatbot ownerName={siteName} />
         </MotionProvider>
       </body>
     </html>
