@@ -9,9 +9,6 @@ import { themeScript } from "@/components/layout/theme-script";
 import { getSiteSettings, resolveSiteDescription } from "@/lib/contentful/portfolio";
 import { getSiteUrl } from "@/lib/site-url";
 
-/** Keep the site chrome (name, contact links) as fresh as the page content. */
-export const revalidate = 300;
-
 const inter = Inter({
   subsets: ["latin"],
   variable: "--font-inter",
@@ -129,7 +126,7 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
             gitHubUrl={gitHubUrl}
             linkedInUrl={linkedInUrl}
           />
-          <Chatbot siteName={siteName} />
+          <Chatbot ownerName={siteName} />
         </MotionProvider>
       </body>
     </html>
