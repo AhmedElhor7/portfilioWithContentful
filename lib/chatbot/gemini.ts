@@ -48,6 +48,29 @@ function readReplyText(data: GeminiResponse): string {
     .trim();
 }
 
+type GeminiErrorBody = {
+  error?: {
+    status?: string;
+  };
+};
+
+/**
+ * @description Reads only a short, enum-like error category from a failed
+ * Gemini response (for example `RESOURCE_EXHAUSTED`), never the free-text
+ * `message` field, which can echo part of the request that produced the
+ * error (including, in safety-block cases, visitor-supplied text).
+ * @param response The failed Gemini response.
+ * @returns The error category, or `null` when it cannot be read.
+ */
+async function readGeminiErrorCategory(response: Response): Promise<string | null> {
+  try {
+    const data = (await response.clone().json()) as GeminiErrorBody;
+    return typeof data.error?.status === "string" ? data.error.status : null;
+  } catch {
+    return null;
+  }
+}
+
 function describeError(error: unknown): string {
   if (!(error instanceof Error)) return String(error);
 
@@ -105,10 +128,10 @@ export async function generateChatReply(
     const response = await fetch(endpoint, options);
 
     if (!response.ok) {
-      const detail = await response.text().catch(() => "");
+      const category = await readGeminiErrorCategory(response);
 
       console.error(
-        `[chatbot] Gemini request failed (${response.status})${detail ? `: ${detail.slice(0, 300)}` : ""}`,
+        `[chatbot] Gemini request failed (${response.status})${category ? `: ${category}` : ""}`,
       );
 
       return {

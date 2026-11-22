@@ -34,6 +34,15 @@ describe("ProjectCard", () => {
     ).toBeInTheDocument();
   });
 
+  it("gives the cover image a sizes hint matching the grid layout", () => {
+    render(<ProjectCard project={projects[0]} />);
+
+    expect(screen.getByRole("img", { name: "Northwind documentation homepage" })).toHaveAttribute(
+      "sizes",
+      "(min-width: 1024px) 33vw, 100vw",
+    );
+  });
+
   it("falls back to a decorative initial when there is no cover image", () => {
     const { container } = render(<ProjectCard project={projects[1]} />);
 

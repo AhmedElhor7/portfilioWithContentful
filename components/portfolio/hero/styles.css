@@ -24,7 +24,7 @@
   }
 
   .hero-portrait {
-    @apply border-border mb-6 aspect-square w-full max-w-[16rem] rounded-[var(--radius-lg)] border object-cover;
+    @apply border-border mb-6 aspect-square w-full max-w-md rounded-[var(--radius-lg)] border object-cover lg:max-w-none;
   }
 
   .hero-facts {

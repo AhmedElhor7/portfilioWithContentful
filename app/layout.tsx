@@ -6,7 +6,8 @@ import { MotionProvider } from "@/components/motion/motion-provider";
 import { SiteHeader } from "@/components/layout/site-header/site-header";
 import { SiteFooter } from "@/components/layout/site-footer/site-footer";
 import { themeScript } from "@/components/layout/theme-script";
-import { getSiteSettings, resolveSiteDescription } from "@/lib/contentful/portfolio";
+import { getProjects, getSiteSettings, resolveSiteDescription } from "@/lib/contentful/portfolio";
+import { hasPublishedWork } from "@/lib/portfolio";
 import { getSiteUrl } from "@/lib/site-url";
 
 const inter = Inter({
@@ -92,12 +93,13 @@ export const viewport: Viewport = {
 };
 
 export default async function RootLayout({ children }: LayoutProps<"/">) {
-  const settings = await getSiteSettings();
+  const [settings, projects] = await Promise.all([getSiteSettings(), getProjects()]);
 
   const siteName = settings?.siteName || "";
   const contactEmail = settings?.contactEmail || "";
   const gitHubUrl = settings?.gitHubUrl ?? null;
   const linkedInUrl = settings?.linkedInUrl ?? null;
+  const hasWork = hasPublishedWork(projects);
 
   return (
     <html
@@ -116,8 +118,8 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
           >
             Skip to content
           </a>
-          <SiteHeader siteName={siteName} />
-          <main id="main" className="flex-1">
+          <SiteHeader siteName={siteName} hasWork={hasWork} />
+          <main id="main" className="flex-1 overflow-x-clip">
             {children}
           </main>
           <SiteFooter

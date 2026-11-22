@@ -83,6 +83,18 @@ describe("Homepage composition", () => {
     expect(screen.getByText("01").closest("section")).toBe(container.querySelector("#contact"));
   });
 
+  it("omits the About section when the entry has no heading or description", async () => {
+    vi.mocked(getAboutSection).mockResolvedValue({
+      ...aboutSection,
+      heading: "",
+      description: "",
+    });
+
+    const { container } = render(await Home());
+
+    expect(container.querySelector("#about")).toBeNull();
+  });
+
   it("falls back to the agreed copy when the entries are unavailable", async () => {
     vi.mocked(getSiteSettings).mockResolvedValue(null);
     vi.mocked(getContactSection).mockResolvedValue(null);

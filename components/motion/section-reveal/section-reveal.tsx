@@ -7,14 +7,16 @@ import { SECTION_REVEAL_DEFAULTS, SECTION_REVEAL_OFFSETS } from "./defines";
 import type { SectionRevealProps } from "./types";
 
 /**
- * @description Reveals a homepage section once when it enters the viewport using
- * Motion's scroll-triggered animations. Sections start slightly hidden and
- * offset, animate to their final position with opacity and transform, and
- * alternate direction by default. A fade-up is used where horizontal movement
- * feels unnatural. Already-visible sections on load appear immediately, and
- * visitors who prefer reduced motion never see the transition.
+ * @description Reveals a homepage section using Motion's scroll-triggered
+ * animations whenever it enters the viewport — including re-entering after
+ * scrolling away and back — rather than only on its first appearance.
+ * Sections start slightly hidden and offset, animate to their final position
+ * with opacity and transform, and alternate direction by default. A fade-up is
+ * used where horizontal movement feels unnatural. Already-visible sections on
+ * load appear immediately, and visitors who prefer reduced motion never see
+ * the transition.
  * @param props Section content, direction, anchor id and layout classes.
- * @returns The section element with a one-shot scroll-triggered reveal.
+ * @returns The section element with a repeatable scroll-triggered reveal.
  */
 export function SectionReveal({
   children,

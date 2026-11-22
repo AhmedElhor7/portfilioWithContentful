@@ -4,6 +4,7 @@ import {
   parseChatRequest,
   readApiError,
   readApiReply,
+  readJsonBodyWithLimit,
   toApiMessages,
 } from "./request";
 
@@ -98,5 +99,45 @@ describe("API response readers", () => {
     expect(readApiError({ error: 42 })).toBeNull();
     expect(readApiReply({ message: " Hello " })).toBe("Hello");
     expect(readApiReply({ message: "" })).toBeNull();
+  });
+});
+
+describe("readJsonBodyWithLimit", () => {
+  it("parses a body within the limit", async () => {
+    const request = new Request("https://example.com/api/chat", {
+      method: "POST",
+      body: JSON.stringify({ messages: [{ role: "user", content: "hi" }] }),
+    });
+
+    const result = await readJsonBodyWithLimit(request, 1000);
+
+    expect(result).toEqual({
+      ok: true,
+      body: { messages: [{ role: "user", content: "hi" }] },
+    });
+  });
+
+  it("rejects a body that exceeds the byte limit even without an accurate Content-Length", async () => {
+    const oversized = "x".repeat(50_000);
+    const request = new Request("https://example.com/api/chat", {
+      method: "POST",
+      headers: { "content-length": "1" },
+      body: JSON.stringify({ messages: [{ role: "user", content: oversized }] }),
+    });
+
+    const result = await readJsonBodyWithLimit(request, 24_000);
+
+    expect(result).toEqual({ ok: false, status: 413 });
+  });
+
+  it("reports invalid JSON within the byte limit as a bad request", async () => {
+    const request = new Request("https://example.com/api/chat", {
+      method: "POST",
+      body: "not json",
+    });
+
+    const result = await readJsonBodyWithLimit(request, 1000);
+
+    expect(result).toEqual({ ok: false, status: 400 });
   });
 });

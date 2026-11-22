@@ -1,4 +1,4 @@
-import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { act, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { Chatbot } from "./chatbot";
 
@@ -97,6 +97,83 @@ describe("Chatbot", () => {
       expect(
         screen.queryByRole("dialog", { name: "Portfolio assistant for Ahmed" }),
       ).not.toBeInTheDocument();
+    });
+  });
+
+  it("hides the mic button when speech recognition is unsupported", () => {
+    openChatbot();
+
+    expect(screen.queryByRole("button", { name: "Start voice input" })).not.toBeInTheDocument();
+  });
+
+  describe("voice input", () => {
+    class FakeRecognition {
+      static instance: FakeRecognition | null = null;
+      lang = "";
+      continuous = true;
+      interimResults = false;
+      onresult: ((event: { results: { transcript: string }[][] }) => void) | null = null;
+      onerror: ((event: { error: string }) => void) | null = null;
+      onend: (() => void) | null = null;
+      start = vi.fn();
+      stop = vi.fn(() => this.onend?.());
+      abort = vi.fn();
+
+      constructor() {
+        FakeRecognition.instance = this;
+      }
+    }
+
+    beforeEach(() => {
+      FakeRecognition.instance = null;
+      vi.stubGlobal("webkitSpeechRecognition", FakeRecognition);
+    });
+
+    it("dictates into the textarea without sending", async () => {
+      openChatbot();
+
+      fireEvent.click(await screen.findByRole("button", { name: "Start voice input" }));
+      const recognition = FakeRecognition.instance!;
+      expect(recognition.start).toHaveBeenCalled();
+
+      const stopButton = screen.getByRole("button", { name: "Stop voice input" });
+      expect(stopButton).toHaveAttribute("aria-pressed", "true");
+
+      act(() => {
+        recognition.onresult?.({ results: [[{ transcript: "What projects" }], [{ transcript: " has he built?" }]] });
+      });
+      expect(screen.getByRole("textbox", { name: "Message" })).toHaveValue(
+        "What projects has he built?",
+      );
+
+      fireEvent.click(stopButton);
+      expect(recognition.stop).toHaveBeenCalled();
+      expect(screen.getByRole("button", { name: "Start voice input" })).toBeInTheDocument();
+      expect(fetch).not.toHaveBeenCalled();
+    });
+
+    it("explains when microphone access is blocked", async () => {
+      openChatbot();
+
+      fireEvent.click(await screen.findByRole("button", { name: "Start voice input" }));
+      act(() => {
+        FakeRecognition.instance!.onerror?.({ error: "not-allowed" });
+        FakeRecognition.instance!.onend?.();
+      });
+
+      expect(screen.getByText(/Microphone access was blocked/)).toBeInTheDocument();
+    });
+
+    it("explains when the speech service is unreachable", async () => {
+      openChatbot();
+
+      fireEvent.click(await screen.findByRole("button", { name: "Start voice input" }));
+      act(() => {
+        FakeRecognition.instance!.onerror?.({ error: "network" });
+        FakeRecognition.instance!.onend?.();
+      });
+
+      expect(screen.getByText(/could not reach its speech service/)).toBeInTheDocument();
     });
   });
 });

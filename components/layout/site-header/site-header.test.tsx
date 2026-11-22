@@ -77,4 +77,15 @@ describe("SiteHeader", () => {
 
     expect(screen.getByRole("button", { name: "Switch to dark theme" })).toBeInTheDocument();
   });
+
+  it("hides the Work link when there is no Work section to link to", () => {
+    render(<SiteHeader siteName={siteName} hasWork={false} />);
+
+    const nav = screen.getByRole("navigation", { name: "Primary" });
+
+    expect(within(nav).getAllByRole("link").map((link) => link.textContent)).toEqual([
+      "Home",
+      "Contact",
+    ]);
+  });
 });

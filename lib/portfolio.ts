@@ -1,4 +1,4 @@
-import type { Project } from "@/lib/contentful/types";
+import type { AboutSection, Project } from "@/lib/contentful/types";
 import type { SectionId } from "@/types";
 
 /**
@@ -22,6 +22,28 @@ export function collectTechnologies(projects: Project[]): string[] {
   }
 
   return technologies;
+}
+
+/**
+ * @description Whether the homepage renders a Work section. Shared by the
+ * header navigation and the hero's fallback call to action so neither ever
+ * links to a `#work` anchor that is not on the page.
+ * @param projects The published projects.
+ * @returns `true` when at least one project is published.
+ */
+export function hasPublishedWork(projects: Project[]): boolean {
+  return projects.length > 0;
+}
+
+/**
+ * @description Whether the About entry has a heading or description to show.
+ * An entry with both fields blank would otherwise render an empty, numbered
+ * section with nothing for a visitor to read.
+ * @param about The published about entry, or `null` when it is missing.
+ * @returns `true` when the entry exists and has a heading or description.
+ */
+export function hasAboutContent(about: AboutSection | null): boolean {
+  return about !== null && (about.heading !== "" || about.description !== "");
 }
 
 /**

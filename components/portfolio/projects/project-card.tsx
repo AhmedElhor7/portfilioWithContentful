@@ -36,6 +36,7 @@ export function ProjectCard({ project, className }: ProjectCardProps) {
             height={project.coverImage.height}
             renderedWidth={PROJECT_CARD_IMAGE.renderedWidth}
             quality={PROJECT_CARD_IMAGE.quality}
+            sizes={PROJECT_CARD_IMAGE.sizes}
             className="project-card-image"
           />
         ) : (

@@ -82,6 +82,64 @@ export function parseChatRequest(value: unknown): ChatRequestParseResult {
   return { ok: true, request: { messages } };
 }
 
+export type BodyReadResult =
+  | { ok: true; body: unknown }
+  | { ok: false; status: 413 | 400 };
+
+/**
+ * @description Reads the request body while enforcing a byte limit on the
+ * bytes actually read, then parses it as JSON. The `Content-Length` header
+ * alone is not a reliable guard: a client can omit it (chunked transfer
+ * encoding has no length header) or send one that understates the real body,
+ * so the limit is enforced against the stream itself.
+ * @param request Incoming request.
+ * @param maxBytes Maximum number of body bytes to accept.
+ * @returns The parsed body, or the status code to report when it is rejected.
+ */
+export async function readJsonBodyWithLimit(
+  request: Request,
+  maxBytes: number,
+): Promise<BodyReadResult> {
+  const reader = request.body?.getReader();
+
+  if (!reader) {
+    return { ok: true, body: undefined };
+  }
+
+  const chunks: Uint8Array[] = [];
+  let totalBytes = 0;
+
+  while (true) {
+    const { done, value } = await reader.read();
+    if (done) break;
+
+    if (value) {
+      totalBytes += value.byteLength;
+
+      if (totalBytes > maxBytes) {
+        await reader.cancel();
+        return { ok: false, status: 413 };
+      }
+
+      chunks.push(value);
+    }
+  }
+
+  const bytes = new Uint8Array(totalBytes);
+  let offset = 0;
+
+  for (const chunk of chunks) {
+    bytes.set(chunk, offset);
+    offset += chunk.byteLength;
+  }
+
+  try {
+    return { ok: true, body: JSON.parse(new TextDecoder().decode(bytes)) };
+  } catch {
+    return { ok: false, status: 400 };
+  }
+}
+
 /**
  * @description Converts session messages into the smaller API history.
  * @param messages Full conversation shown in the window.

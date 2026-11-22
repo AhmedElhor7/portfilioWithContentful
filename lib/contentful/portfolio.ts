@@ -232,6 +232,10 @@ export const getContactSection = cache(async (): Promise<ContactSection | null> 
 
 /**
  * @description All published projects, ordered by `displayOrder` (missing values last).
+ * Requests the Contentful Content Delivery API's maximum page size (1,000) in a
+ * single call rather than paginating, since a portfolio is expected to list far
+ * fewer projects than that; projects beyond the 1,000th would need pagination
+ * (via `skip`) added here, which is not implemented.
  * @returns The normalized projects; an empty list when the request fails.
  */
 export const getProjects = cache(async (): Promise<Project[]> => {
@@ -245,7 +249,7 @@ export const getProjects = cache(async (): Promise<Project[]> => {
     const response = await client.getEntries<ProjectSkeleton>({
       content_type: PROJECT_CONTENT_TYPE,
       include: 2,
-      limit: 100,
+      limit: 1000,
       order: ["fields.displayOrder"],
     });
 

@@ -13,9 +13,11 @@ export const HERO_FACT_LABELS = {
   status: "Status",
 } as const;
 
-/** Contentful Image API options for the portrait. */
+/** Contentful Image API options for the portrait. Below the `lg` breakpoint it
+ * spans the column up to 28rem; from `lg` it fills the hero's right column
+ * (about 25rem at the widest shell). */
 export const HERO_PROFILE_IMAGE = {
   renderedWidth: 480,
   quality: 74,
-  sizes: "16rem",
+  sizes: "(min-width: 1024px) 25rem, min(28rem, 100vw)",
 } as const;

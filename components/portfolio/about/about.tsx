@@ -4,8 +4,10 @@ import { ABOUT_LABEL, ABOUT_REVEAL_DIRECTION, ABOUT_SECTION_ID } from "./defines
 import type { AboutProps } from "./types";
 
 /**
- * @description About section. The heading and description come from Contentful,
- * so nothing is rendered when either value is missing.
+ * @description About section. Renders whatever heading and description are on
+ * the entry; the caller only renders this component when `hasAboutContent`
+ * (`lib/portfolio.ts`) says the entry has one of those values, so visitors never
+ * see an empty, numbered section.
  * @param props Published entry and section index.
  * @returns The revealed about section
  */

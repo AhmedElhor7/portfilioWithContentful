@@ -1,6 +1,17 @@
 import { describe, expect, it } from "vitest";
+import type { AboutSection } from "@/lib/contentful/types";
 import type { Project } from "@/types";
-import { buildSectionOrder, collectTechnologies, getSectionIndex } from "./portfolio";
+import {
+  buildSectionOrder,
+  collectTechnologies,
+  getSectionIndex,
+  hasAboutContent,
+  hasPublishedWork,
+} from "./portfolio";
+
+function about(heading: string, description: string): AboutSection {
+  return { id: "about-1", name: "About", heading, description };
+}
 
 function project(id: string, technologies: string[]): Project {
   return {
@@ -64,5 +75,30 @@ describe("getSectionIndex", () => {
 
   it("returns an empty string for sections that are not rendered", () => {
     expect(getSectionIndex(order, "toolkit")).toBe("");
+  });
+});
+
+describe("hasPublishedWork", () => {
+  it("is true when at least one project is published", () => {
+    expect(hasPublishedWork([project("a", [])])).toBe(true);
+  });
+
+  it("is false when there are no published projects", () => {
+    expect(hasPublishedWork([])).toBe(false);
+  });
+});
+
+describe("hasAboutContent", () => {
+  it("is false when the entry is missing", () => {
+    expect(hasAboutContent(null)).toBe(false);
+  });
+
+  it("is false when both the heading and description are blank", () => {
+    expect(hasAboutContent(about("", ""))).toBe(false);
+  });
+
+  it("is true when either the heading or the description has copy", () => {
+    expect(hasAboutContent(about("About me", ""))).toBe(true);
+    expect(hasAboutContent(about("", "Some copy"))).toBe(true);
   });
 });

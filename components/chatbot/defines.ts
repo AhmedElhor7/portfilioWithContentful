@@ -11,8 +11,10 @@ export const CHATBOT_LABELS = {
   dialog: (ownerName: string) =>
     ownerName ? `Portfolio assistant for ${ownerName}` : "Portfolio assistant",
   inputLabel: "Message",
-  inputPlaceholder: "Ask about projects, skills, or availability…",
+  inputPlaceholder: "Ask about me.",
   send: "Send message",
+  startVoice: "Start voice input",
+  stopVoice: "Stop voice input",
   retry: "Retry",
   reset: "Start a new chat",
   dismissError: "Dismiss error",
@@ -31,6 +33,12 @@ export const CHATBOT_COPY = {
   launcherHint: "Ask my portfolio",
   typing: "Portfolio assistant is typing…",
   composerHint: "Enter to send · Shift + Enter for a new line",
+  listeningHint: "Listening… tap the mic again to stop",
+  voiceDenied: "Microphone access was blocked. Allow it in your browser to use voice input.",
+  voiceNoMic: "No microphone was found. Connect one or type your question.",
+  voiceNetwork:
+    "This browser could not reach its speech service. Try Chrome, Edge or Safari online, or type your question.",
+  voiceError: "Voice input did not work. Please try again or type your question.",
   opensInNewTab: " (opens in a new tab)",
   genericError: "The assistant could not answer right now. Please try again.",
 } as const;

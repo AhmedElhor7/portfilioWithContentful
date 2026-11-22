@@ -19,16 +19,20 @@ function isActive(pathname: string, href: string): boolean {
 /**
  * @description Sticky site header with the primary navigation, theme toggle and a
  * mobile menu. The collapsed menu is inert so keyboard users cannot tab into it.
- * @param props Site name from Contentful.
+ * @param props Site name from Contentful and whether a Work section is published.
  * @returns The header landmark.
  */
-export function SiteHeader({ siteName = "" }: SiteHeaderProps) {
+export function SiteHeader({ siteName = "", hasWork = true }: SiteHeaderProps) {
   const pathname = usePathname() ?? "";
   const reducedMotion = useReducedMotion();
   const [scrolled, setScrolled] = React.useState(false);
   const [menuOpen, setMenuOpen] = React.useState(false);
   const toggleRef = React.useRef<HTMLButtonElement>(null);
   const { scrollY } = useScroll();
+  const navItems = React.useMemo(
+    () => SITE_NAV_ITEMS.filter((item) => hasWork || item.href !== "/#work"),
+    [hasWork],
+  );
 
   useMotionValueEvent(scrollY, "change", (value) => {
     setScrolled(value > HEADER_SCROLL_THRESHOLD);
@@ -74,7 +78,7 @@ export function SiteHeader({ siteName = "" }: SiteHeaderProps) {
         </Link>
 
         <nav className="hidden items-center gap-1 md:flex" aria-label="Primary">
-          {SITE_NAV_ITEMS.map((item) => {
+          {navItems.map((item) => {
             const active = isActive(pathname, item.href);
 
             return (
@@ -131,7 +135,7 @@ export function SiteHeader({ siteName = "" }: SiteHeaderProps) {
         className="overflow-hidden md:hidden"
       >
         <nav className="shell flex flex-col gap-1 py-4" aria-label="Mobile">
-          {SITE_NAV_ITEMS.map((item, index) => (
+          {navItems.map((item, index) => (
             <motion.div
               key={item.href}
               initial={reducedMotion ? false : { opacity: 0, x: -12 }}

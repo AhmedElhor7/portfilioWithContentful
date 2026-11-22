@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { generateChatReply } from "@/lib/chatbot/gemini";
 import { getPortfolioKnowledge } from "@/lib/chatbot/knowledge";
 import { getClientKey, isRateLimited } from "@/lib/chatbot/rate-limit";
-import { parseChatRequest } from "@/lib/chatbot/request";
+import { parseChatRequest, readJsonBodyWithLimit } from "@/lib/chatbot/request";
 import type { ChatErrorResponse } from "@/lib/chatbot/types";
 
 export const runtime = "nodejs";
@@ -26,21 +26,28 @@ export async function POST(request: Request) {
     return errorResponse("Too many messages. Please wait a moment and try again.", 429);
   }
 
+  // Fast path: reject obviously oversized requests before reading the body.
+  // This is not the only guard — `readJsonBodyWithLimit` enforces the same
+  // limit against the actual bytes read, since `Content-Length` can be
+  // absent (chunked transfer encoding) or understated.
   const contentLength = Number(request.headers.get("content-length") ?? 0);
 
   if (Number.isFinite(contentLength) && contentLength > MAX_REQUEST_BYTES) {
     return errorResponse("The request is too large.", 413);
   }
 
-  let body: unknown;
+  const bodyResult = await readJsonBodyWithLimit(request, MAX_REQUEST_BYTES);
 
-  try {
-    body = await request.json();
-  } catch {
-    return errorResponse("The request could not be understood.", 400);
+  if (!bodyResult.ok) {
+    return errorResponse(
+      bodyResult.status === 413
+        ? "The request is too large."
+        : "The request could not be understood.",
+      bodyResult.status,
+    );
   }
 
-  const parsed = parseChatRequest(body);
+  const parsed = parseChatRequest(bodyResult.body);
 
   if (!parsed.ok) {
     return errorResponse(parsed.error, 400);
