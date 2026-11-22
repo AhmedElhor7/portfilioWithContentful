@@ -4,7 +4,7 @@ import * as React from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { motion, useMotionValueEvent, useReducedMotion, useScroll } from "motion/react";
-import { Menu, X } from "lucide-react";
+import { Code, Menu, X } from "lucide-react";
 import { ThemeToggle } from "@/components/layout/theme-toggle/theme-toggle";
 import { cn } from "@/lib/utils";
 import { HEADER_SCROLL_THRESHOLD, MOBILE_NAV_ID, SITE_NAV_ITEMS } from "./defines";
@@ -64,17 +64,15 @@ export function SiteHeader({ siteName = "", hasWork = true }: SiteHeaderProps) {
         <Link
           href="/"
           aria-label={siteName ? `${siteName} — home` : "Home"}
-          className="group flex items-baseline gap-2 rounded-sm outline-none focus-visible:ring-2 focus-visible:ring-ring/45"
+          className="group flex items-center gap-2 rounded-sm outline-none focus-visible:ring-2 focus-visible:ring-ring/45"
         >
           <span className="font-serif text-[1.05rem] leading-none font-semibold tracking-[-0.02em]">
             {siteName}
           </span>
-          <span
+          <Code
             aria-hidden
-            className="text-accent font-serif text-[1.05rem] leading-none italic transition-transform duration-500 group-hover:-rotate-12"
-          >
-            ✳
-          </span>
+            className="text-accent size-5  shrink-1 transition-transform duration-500 group-hover:-rotate-12"
+          />
         </Link>
 
         <nav className="hidden items-center gap-1 md:flex" aria-label="Primary">
